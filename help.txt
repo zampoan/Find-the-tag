@@ -1,0 +1,2 @@
+To upgrade opencv: https://stackoverflow.com/questions/60428259/vscode-autocomplete-not-working-for-opencv-installed-from-source
+opencv: https://www.youtube.com/watch?v=YSLVAxgclCo
