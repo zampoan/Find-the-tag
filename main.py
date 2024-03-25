@@ -1,54 +1,59 @@
+# opencv-contrib-python installed
+# help: https://www.youtube.com/watch?v=T588klKBPNo
 import numpy as np
 import cv2
 
 GREEN = (0, 255, 0)
 
+OBJECT_TRACKERS = {
+    'crst': cv2.legacy.TrackerCSRT_create,
+    'moss': cv2.legacy.TrackerMOSSE_create,
+    'kcf': cv2.legacy.TrackerKCF_create, 
+    'medianflow': cv2.legacy.TrackerMedianFlow_create,
+    'mil': cv2.legacy.TrackerMIL_create,
+    'tld': cv2.legacy.TrackerTLD_create,
+    'boosting': cv2.legacy.TrackerBoosting_create,
+}
+
+# for multi tracking
+trackers = cv2.legacy.MultiTracker_create()
+
 videoPath = "sample.mp4"
 
 cap = cv2.VideoCapture(videoPath)
 
-# Extracts moving objects
-objectDetectionMOG = cv2.createBackgroundSubtractorMOG2(
-    history=100, 
-    varThreshold=50     # higher value less detection less false positive
-    )    
-
 while True:
-    ret, frame = cap.read() 
-    
-    height, width, _ = frame.shape # 720, 960
-    # Extract region of interest (roi)
-    roi = frame[20: 690, 400: 700] 
 
-    # Object detection
-    maskMOG = objectDetectionMOG.apply(roi)
+    _, frame = cap.read()
 
-    # get rid of shadows
-    _, maskMOG = cv2.threshold(maskMOG, 254, 255, cv2.THRESH_BINARY)
+    success, boxes = trackers.update(frame)
 
-    # find the boundaries of all objects
-    contours, _ = cv2.findContours(maskMOG, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    # When tracking fails, remove the information about the object
+    if success == False:
+        boundingBox = trackers.getObject()
 
-    for cnt in contours:
-        # calculate area and remove small elements
-        area = cv2.contourArea(cnt)
-        
-        # find area greater than 200 pixels and draws them
-        if area > 200:
-            # cv2.drawContours(roi, [cnt], -1, GREEN, 2) # draw all countorIdx
-
-            x, y, w, h = cv2.boundingRect(cnt)
-            cv2.rectangle(roi, (x,y), (x+w, y+h), GREEN, 3)
+        print(boundingBox)
 
 
-    cv2.imshow('roi', roi)
-    cv2.imshow('frame', frame)
-    # cv2.imshow('mog mask', maskMOG)
+    for box in boxes:
+        x, y, w, h = [int(c) for c in box]
 
+        # show bounding box
+        cv2.rectangle(frame, (x,y), (x+w, y+h), GREEN, 2)
+        # print(x, y, w, h)
 
+    cv2.imshow('Tracking', frame)
 
     if cv2.waitKey(1) == ord('q'):
         break
+    
+    if cv2.waitKey(1) == ord('w'):
+        # select the object to track
+        roi = cv2.selectROI('Tracking', frame)
+
+        # enable tracking using specific tracker
+        tracker = OBJECT_TRACKERS['crst']()
+        trackers.add(tracker, frame, roi)
 
 cap.release()
 cv2.destroyAllWindows()
