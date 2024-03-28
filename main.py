@@ -12,33 +12,34 @@ cap = cv2.VideoCapture(videoPath)
 # results = model.train(data='data/data.yaml', epochs=25, imgsz=224,) #  device='mps'
 
 # Inference with custom model
-model = YOLO("runs/detect/train3/weights/best.pt")
+# model = YOLO("runs/detect/train3/weights/best.pt")
 # results = model.track(source=videoPath, show=True)
 
-# Training
-# yolo task=detect mode=train epochs=100 data=data/data.yaml, imgsz=640, model=yolo.v8m.pt
+# Training /runs/detect/train
+# yolo task=detect mode=train epochs=100 data=data/data.yaml imgsz=640 model=yolov8m.pt
 
-# Predicting
+# Predicting, saved in /runs/detect/predict3
+# yolo task=detect mode=predict model=best.pt show=True conf=0.5 source=sample.mp4
 
 
 # Read frames
-while True:
+# while True:
 
-    if ret:
+#     if ret:
         
-        ret, frame = cap.read()
+#         ret, frame = cap.read()
 
-        # detect and track object
-        results = model.track(frame, persist=True)
+#         # detect and track object
+#         results = model.track(frame, persist=True)
 
-        # plot results
-        frame_ = results[0].plot()
+#         # plot results
+#         frame_ = results[0].plot()
 
-        # visualize
-        cv2.imshow('frame', frame_)
+#         # visualize
+#         cv2.imshow('frame', frame_)
 
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-            break
+#         if cv2.waitKey(25) & 0xFF == ord('q'):
+#             break
 
-cap.release()
-cv2.destroyAllWindows()
+# cap.release()
+# cv2.destroyAllWindows()
